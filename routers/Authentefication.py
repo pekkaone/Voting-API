@@ -44,7 +44,7 @@ def auth(user: User, session: Session = Depends(get_session)):
 
 @router.post("/login")
 def login(user: User, session: Session = Depends(get_session)):
-    right_login = session.exec(select(User).where((User.name == user.name) & (User.password == user.password))).first
+    right_login = session.exec(select(User).where((User.name == user.name) & (User.password == user.password))).first()
     if not right_login:
         raise HTTPException(status_code=400, detail="incorrect")
     token = create_access_token(data={"sub": user.name})
@@ -56,7 +56,7 @@ def current_user(session: Session = Depends(get_session), token: str = Depends(o
         username = payload.get("sub")
         if username is None:
             raise HTTPException(status_code=400, detail="no name given")
-        user = session.exec(select(User).where(username == User.name)).first()
+        user = session.exec(select(User).where(User.name == username)).first()
         if user is None:
             raise HTTPException(status_code=400, detail="wrong token")
         return user
